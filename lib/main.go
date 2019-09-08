@@ -33,6 +33,8 @@ var ErrEncryptedFileMissing = errors.New("encrypted file is missing")
 // ErrPathDoesNotExist when the source path does not exist
 var ErrPathDoesNotExist = errors.New("directory or file does not exist")
 
+var ErrUnlockedPathAlreadyExists = errors.New("unlocked path already exists")
+
 // NewPathLocker instantiates a new path locker
 func NewPathLocker(storePath string) *PathLocker {
 	return &PathLocker{storePath}
@@ -80,6 +82,10 @@ func (p PathLocker) LockPath(dirPath string, pass string) error {
 
 // UnlockPath decrypts and decompresses the archive to the source
 func (p PathLocker) UnlockPath(dirPath string, pass string) error {
+	if err := p.validateUnlocking(dirPath); err != nil {
+		return err
+	}
+
 	fmt.Println("Decrypting...")
 	if err := decryptFile(
 		p.getEncryptedPath(dirPath),
@@ -122,6 +128,10 @@ func (p PathLocker) validateLocking(dirPath string) error {
 }
 
 func (p PathLocker) validateUnlocking(dirPath string) error {
+	if pathExists(dirPath) {
+		return ErrUnlockedPathAlreadyExists
+	}
+
 	if !pathExists(p.getEncryptedPath(dirPath)) {
 		return ErrEncryptedFileMissing
 	}

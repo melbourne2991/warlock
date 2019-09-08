@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -33,8 +34,6 @@ var unlockCmd = &cobra.Command{
 		}
 
 		password := passwordPrompt()
-
-		fmt.Println(targetVault)
 
 		for i := 0; i < len(targetVault); i++ {
 			pathValue := targetVault[i]
